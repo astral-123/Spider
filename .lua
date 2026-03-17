@@ -1,10 +1,13 @@
+-- Violet UI Library - Version GitHub
+-- Fichier: violetui.lua
+
 local Library = {}
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
--- Couleurs principales
+-- Couleurs
 local Colors = {
     Background = Color3.fromRGB(0, 0, 0),
     Secondary = Color3.fromRGB(11, 11, 11),
@@ -18,8 +21,13 @@ local Colors = {
 local isVisible = true
 local toggleKey = Enum.KeyCode.F
 
--- Fonction principale pour créer la fenêtre
-function Library:CreateWindow(title)
+-- Fonction pour créer la fenêtre
+function Library:CreateWindow(config)
+    config = config or {}
+    local windowName = config.Name or "Violet Hub"
+    toggleKey = config.ToggleKey or Enum.KeyCode.F
+    local resizable = config.Resizable or true
+    
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "VioletLibrary"
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
@@ -37,19 +45,6 @@ function Library:CreateWindow(title)
     MainFrame.Size = UDim2.new(0, 800, 0, 550)
     MainFrame.Active = true
     MainFrame.Draggable = true
-    
-    -- Resize Handle
-    local ResizeHandle = Instance.new("ImageButton")
-    ResizeHandle.Name = "ResizeHandle"
-    ResizeHandle.Parent = MainFrame
-    ResizeHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    ResizeHandle.BackgroundTransparency = 1
-    ResizeHandle.Size = UDim2.new(0, 20, 0, 20)
-    ResizeHandle.Position = UDim2.new(1, -20, 1, -20)
-    ResizeHandle.Image = "rbxassetid://3926305904"
-    ResizeHandle.ImageColor3 = Colors.Violet
-    ResizeHandle.ImageRectOffset = Vector2.new(4, 4)
-    ResizeHandle.ImageRectSize = Vector2.new(360, 360)
     
     -- Logo
     local Logo = Instance.new("ImageLabel")
@@ -91,6 +86,46 @@ function Library:CreateWindow(title)
     CloseButton.Text = "×"
     CloseButton.TextColor3 = Colors.Text
     CloseButton.TextSize = 20
+    
+    -- Resize Handle
+    if resizable then
+        local ResizeHandle = Instance.new("ImageButton")
+        ResizeHandle.Name = "ResizeHandle"
+        ResizeHandle.Parent = MainFrame
+        ResizeHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ResizeHandle.BackgroundTransparency = 1
+        ResizeHandle.Size = UDim2.new(0, 20, 0, 20)
+        ResizeHandle.Position = UDim2.new(1, -20, 1, -20)
+        ResizeHandle.Image = "rbxassetid://3926305904"
+        ResizeHandle.ImageColor3 = Colors.Violet
+        
+        -- Resize functionality
+        local isResizing = false
+        ResizeHandle.MouseButton1Down:Connect(function()
+            isResizing = true
+            local startPos = UserInputService:GetMouseLocation()
+            local startSize = MainFrame.Size
+            
+            local connection
+            connection = UserInputService.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement and isResizing then
+                    local mousePos = UserInputService:GetMouseLocation()
+                    local delta = Vector2.new(mousePos.X - startPos.X, mousePos.Y - startPos.Y)
+                    local newSize = UDim2.new(0, math.max(400, startSize.X.Offset + delta.X), 0, math.max(300, startSize.Y.Offset + delta.Y))
+                    MainFrame.Size = newSize
+                end
+            end)
+            
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    isResizing = false
+                    if connection then
+                        connection:Disconnect()
+                    end
+                end
+            end)
+        end)
+    end
     
     -- Tabs Frame
     local TabsFrame = Instance.new("Frame")
@@ -147,54 +182,6 @@ function Library:CreateWindow(title)
     NotificationText.TextSize = 14
     NotificationText.TextWrapped = true
     NotificationText.ZIndex = 11
-    
-    -- Keybind Frame
-    local KeybindFrame = Instance.new("Frame")
-    KeybindFrame.Name = "KeybindFrame"
-    KeybindFrame.Parent = ScreenGui
-    KeybindFrame.BackgroundColor3 = Colors.Secondary
-    KeybindFrame.BorderColor3 = Colors.Violet
-    KeybindFrame.BorderSizePixel = 2
-    KeybindFrame.Position = UDim2.new(0.4, 0, 0.4, 0)
-    KeybindFrame.Size = UDim2.new(0, 300, 0, 150)
-    KeybindFrame.Visible = false
-    KeybindFrame.ZIndex = 10
-    
-    local KeybindTitle = Instance.new("TextLabel")
-    KeybindTitle.Name = "KeybindTitle"
-    KeybindTitle.Parent = KeybindFrame
-    KeybindTitle.BackgroundColor3 = Colors.Element
-    KeybindTitle.BorderColor3 = Colors.Violet
-    KeybindTitle.Size = UDim2.new(1, 0, 0, 30)
-    KeybindTitle.Text = "Appuyez sur une touche"
-    KeybindTitle.TextColor3 = Colors.Text
-    KeybindTitle.TextSize = 16
-    KeybindTitle.ZIndex = 11
-    
-    local KeybindTextBox = Instance.new("TextBox")
-    KeybindTextBox.Name = "KeybindTextBox"
-    KeybindTextBox.Parent = KeybindFrame
-    KeybindTextBox.BackgroundColor3 = Colors.Element
-    KeybindTextBox.BorderColor3 = Colors.Violet
-    KeybindTextBox.Position = UDim2.new(0.2, 0, 0.4, 0)
-    KeybindTextBox.Size = UDim2.new(0, 180, 0, 40)
-    KeybindTextBox.Text = ""
-    KeybindTextBox.TextColor3 = Colors.Text
-    KeybindTextBox.TextSize = 14
-    KeybindTextBox.PlaceholderText = "Cliquez ici"
-    KeybindTextBox.ZIndex = 11
-    
-    local KeybindButton = Instance.new("TextButton")
-    KeybindButton.Name = "KeybindButton"
-    KeybindButton.Parent = KeybindFrame
-    KeybindButton.BackgroundColor3 = Colors.Element
-    KeybindButton.BorderColor3 = Colors.Violet
-    KeybindButton.Position = UDim2.new(0.35, 0, 0.7, 0)
-    KeybindButton.Size = UDim2.new(0, 100, 0, 30)
-    KeybindButton.Text = "Confirmer"
-    KeybindButton.TextColor3 = Colors.Text
-    KeybindButton.TextSize = 14
-    KeybindButton.ZIndex = 11
     
     -- Variables pour les tabs
     local tabs = {}
@@ -517,34 +504,53 @@ function Library:CreateWindow(title)
         local currentKey = defaultKey
         
         KeybindButton.MouseButton1Click:Connect(function()
-            KeybindFrame.Visible = true
-            KeybindTextBox.Text = ""
-            KeybindTextBox.PlaceholderText = "Appuyez sur une touche..."
+            local KeybindPopup = Instance.new("Frame")
+            KeybindPopup.Name = "KeybindPopup"
+            KeybindPopup.Parent = ScreenGui
+            KeybindPopup.BackgroundColor3 = Colors.Secondary
+            KeybindPopup.BorderColor3 = Colors.Violet
+            KeybindPopup.BorderSizePixel = 2
+            KeybindPopup.Position = UDim2.new(0.4, 0, 0.4, 0)
+            KeybindPopup.Size = UDim2.new(0, 300, 0, 150)
+            KeybindPopup.ZIndex = 20
+            
+            local PopupTitle = Instance.new("TextLabel")
+            PopupTitle.Name = "PopupTitle"
+            PopupTitle.Parent = KeybindPopup
+            PopupTitle.BackgroundColor3 = Colors.Element
+            PopupTitle.BorderColor3 = Colors.Violet
+            PopupTitle.Size = UDim2.new(1, 0, 0, 30)
+            PopupTitle.Text = "Appuyez sur une touche"
+            PopupTitle.TextColor3 = Colors.Text
+            PopupTitle.TextSize = 16
+            PopupTitle.ZIndex = 21
+            
+            local PopupText = Instance.new("TextLabel")
+            PopupText.Name = "PopupText"
+            PopupText.Parent = KeybindPopup
+            PopupText.BackgroundColor3 = Colors.Element
+            PopupText.BorderColor3 = Colors.Violet
+            PopupText.Position = UDim2.new(0.2, 0, 0.4, 0)
+            PopupText.Size = UDim2.new(0, 180, 0, 40)
+            PopupText.Text = "..."
+            PopupText.TextColor3 = Colors.Text
+            PopupText.TextSize = 14
+            PopupText.ZIndex = 21
             
             local connection
             connection = UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.Keyboard then
                     currentKey = input.KeyCode
-                    KeybindTextBox.Text = tostring(currentKey):gsub("Enum.KeyCode.", "")
+                    PopupText.Text = tostring(currentKey):gsub("Enum.KeyCode.", "")
+                    task.wait(0.5)
+                    KeybindPopup:Destroy()
+                    KeybindButton.Text = text..": "..tostring(currentKey):gsub("Enum.KeyCode.", "")
+                    if callback then
+                        callback(currentKey)
+                    end
                     connection:Disconnect()
                 end
             end)
-        end)
-        
-        KeybindButton.MouseButton1Click:Connect(function()
-            KeybindFrame.Visible = true
-        end)
-        
-        KeybindButton.MouseButton1Click:Connect(function()
-            KeybindFrame.Visible = true
-        end)
-        
-        KeybindButton.MouseButton1Click:Connect(function()
-            KeybindFrame.Visible = true
-        end)
-        
-        KeybindButton.MouseButton1Click:Connect(function()
-            KeybindFrame.Visible = true
         end)
         
         return KeybindButton
@@ -572,36 +578,17 @@ function Library:CreateWindow(title)
         Library:Notify("Configuration", "Config chargée", 1.5)
     end)
     
+    Library:CreateButton(SettingsRight, "Delete", function()
+        Library:Notify("Configuration", "Config supprimée", 1.5)
+    end)
+    
+    Library:CreateButton(SettingsRight, "Refresh", function()
+        Library:Notify("Configuration", "Configs rafraîchies", 1.5)
+    end)
+    
     Library:CreateKeybind(SettingsRight, "Toggle UI", toggleKey, function(key)
         toggleKey = key
         Library:Notify("Keybind", "Touche: "..tostring(key):gsub("Enum.KeyCode.", ""), 1.5)
-    end)
-    
-    -- Resize
-    local isResizing = false
-    ResizeHandle.MouseButton1Down:Connect(function()
-        isResizing = true
-        local startPos = UserInputService:GetMouseLocation()
-        local startSize = MainFrame.Size
-        
-        local connection
-        connection = UserInputService.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement and isResizing then
-                local mousePos = UserInputService:GetMouseLocation()
-                local delta = Vector2.new(mousePos.X - startPos.X, mousePos.Y - startPos.Y)
-                local newSize = UDim2.new(0, math.max(400, startSize.X.Offset + delta.X), 0, math.max(300, startSize.Y.Offset + delta.Y))
-                MainFrame.Size = newSize
-            end
-        end)
-        
-        UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                isResizing = false
-                if connection then
-                    connection:Disconnect()
-                end
-            end
-        end)
     end)
     
     -- Minus button
@@ -623,21 +610,19 @@ function Library:CreateWindow(title)
         end
     end)
     
-    -- Keybind confirmation
-    KeybindButton.MouseButton1Click:Connect(function()
-        if KeybindTextBox.Text ~= "" then
-            local success, key = pcall(function()
-                return Enum.KeyCode[KeybindTextBox.Text]
-            end)
-            if success and key then
-                toggleKey = key
-                Library:Notify("Keybind", "Touche changée: "..KeybindTextBox.Text, 1.5)
-            else
-                Library:Notify("Erreur", "Touche invalide", 1.5)
-            end
-            KeybindFrame.Visible = false
-        end
-    end)
+    -- Retourne l'objet window avec toutes les méthodes
+    local Window = {}
+    Window.CreateTab = function(name) return Library:CreateTab(name) end
+    Window.CreateSection = function(parent, name, pos) return Library:CreateSection(parent, name, pos) end
+    Window.CreateCheckbox = function(parent, text, cb) return Library:CreateCheckbox(parent, text, cb) end
+    Window.CreateButton = function(parent, text, cb) return Library:CreateButton(parent, text, cb) end
+    Window.CreateDropdown = function(parent, text, opts, cb) return Library:CreateDropdown(parent, text, opts, cb) end
+    Window.CreateSlider = function(parent, text, min, max, def, cb) return Library:CreateSlider(parent, text, min, max, def, cb) end
+    Window.CreateInput = function(parent, placeholder, cb) return Library:CreateInput(parent, placeholder, cb) end
+    Window.CreateKeybind = function(parent, text, key, cb) return Library:CreateKeybind(parent, text, key, cb) end
+    Window.Notify = function(title, msg, duration) return Library:Notify(title, msg, duration) end
     
-    return Library
+    return Window
 end
+
+return Library
