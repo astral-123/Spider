@@ -1,10 +1,3 @@
--- ╔══════════════════════════════════════════╗
--- ║         VioletUI Library v4.0            ║
--- ║  Style EXACT de la lib originale jaune   ║
--- ║  Remplacé : jaune → violet               ║
--- ║  Fond noir, bords carrés, logo original  ║
--- ╚══════════════════════════════════════════╝
-
 local VioletUI = {}
 local Players          = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -554,7 +547,7 @@ function VioletUI:CreateWindow(config)
                 SecSubTitle.Text = ""
                 SecSubTitle.TextColor3 = Color3.fromRGB(130, 120, 150)
                 SecSubTitle.TextSize = 11
-                SecSubTitle.Font = Enum.Font.GothamItalic
+                SecSubTitle.Font = Enum.Font.Gotham
                 SecSubTitle.TextXAlignment = Enum.TextXAlignment.Left
                 SecSubTitle.ZIndex = 9
 
@@ -1114,7 +1107,7 @@ function VioletUI:CreateWindow(config)
                     L.Text = txt
                     L.TextColor3 = col or Color3.fromRGB(130, 120, 150)
                     L.TextSize = 11
-                    L.Font = Enum.Font.GothamItalic
+                    L.Font = Enum.Font.Gotham
                     L.TextXAlignment = Enum.TextXAlignment.Left
                     L.ZIndex = 10
                     return L
